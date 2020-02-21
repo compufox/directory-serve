@@ -5,8 +5,9 @@
 
 (defun generate-page (path)
   (let ((path (if (= (length path) 1)
-		  "."
-		  (subseq path 1))))
+		  *cwd*
+		  (namestring (merge-pathnames (subseq path 1)
+					       *cwd*)))))
     (if (directory-exists-p path)
 	(serve-directory path)
 	(if (file-exists-p path)
@@ -14,29 +15,25 @@
 	    (serve-error)))))
 
 (defun serve-directory (path)
-  (let ((directories (mapcar #'remove-cwd
-			     (mapcar #'namestring (subdirectories path))))
-	(files (mapcar #'remove-cwd
-		       (mapcar #'namestring (directory-files path)))))
+  (let ((directories (mapcar #'namestring (subdirectories path)))
+	(files (mapcar #'namestring (directory-files path))))
     (list 200 '(:content-type "text/html")
 	  (list (markup
 		 (:div :style "padding-left: 25%; padding-right: 25%"
 		   (raw (apply #'concat (loop for dir in directories
-					      collect (markup (:a :href dir
+					      collect (markup (:a :href (clean-path path dir)
 								  (clean-path path dir))
 							      (:br)))))
 		   (raw (apply #'concat (loop for file in files
-					      collect (markup (:a :href file
+					      collect (markup (:a :href (clean-path path file)
 								  (clean-path path file))
 							      (:br)))))))))))
 
 (defun remove-cwd (path)
-  (replace-all *cwd* "" path))
+  (replace-all *cwd* "" (namestring path)))
   
 (defun clean-path (dir path)
-  (if (string= "." dir)
-      path
-      (replace-all dir "" path)))
+  (replace-all dir "" path))
 
 
 (defun serve-file (file)
@@ -56,6 +53,7 @@
 	(list (markup (:h1 "404 - Not Found")))))
 
 (defun main ()
+  "binary entry point"
   (flet ((find-thread (th)
 	   (search "hunchentoot" (bt:thread-name th))))
     (handler-case
