@@ -26,30 +26,36 @@ otherwise we return a 404 page"
 	(files (mapcar #'namestring (directory-files path))))
     (list 200 '(:content-type "text/html")
 	  (list (markup
-		 (:head
-		   (:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8")
-		   (:title (remove-cwd path)))
-		 (:div :style "padding-left: 25%; padding-right: 25%"
-		   (raw (unless (string= path *cwd*)
-			  (markup (:a :href ".." (concat (string #\LEFTWARDS_ARROW_WITH_TIP_UPWARDS)
-							 " PARENT"))
-				  (:br))))
-		   (raw (apply #'concat (loop for dir in directories
-					      collect (markup (:a :href (clean-path path dir)
-								  (clean-path path dir))
-							      (:br)))))
-		   (raw (apply #'concat (loop for file in files
-					      collect (markup (:a :href (clean-path path file)
-								  (clean-path path file))
-							      (:br)))))))))))
+		 (:html :style "height:98%;"
+		   (:head
+		     (:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8")
+		     (:title (remove-cwd path)))
+		   (:body :style "overflow:hidden; background-color: #b1cbd3; height: 100%;"
+		     (:div :style +container-style+
+		       (:div :style +column-style+
+		         (:h3 "Directories")
+			   (raw (unless (string= path *cwd*)
+				  (markup (:a :href ".." (format nil "~a PARENT"
+								 #\LEFTWARDS_ARROW_WITH_TIP_UPWARDS)))))
+			     (raw (apply #'concat (loop for dir in directories
+							collect (markup (:a :href (clean-path path dir)
+									    (clean-path path dir :truncate t)))))))
+		       (:div :style +column-style+
+		         (:h3 "Files")
+			     (raw (apply #'concat (loop for file in files
+							collect (markup (:a :href (clean-path path file)
+									    (clean-path path file :truncate t)))))))))))))))
 
 (defun remove-cwd (path)
   "removes cwd from PATH"
   (clean-path *cwd* path))
   
-(defun clean-path (dir path)
+(defun clean-path (dir path &key truncate)
   "removes DIR from PATH"
-  (replace-all dir "" path))
+  (let ((cleaned (replace-all dir "" path)))
+    (if truncate
+	(str:shorten 40 cleaned)
+	cleaned)))
 
 (defun serve-file (file)
   "serves up a file
