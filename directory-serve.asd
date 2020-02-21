@@ -6,7 +6,7 @@
   :license  "NPLv1+"
   :version "0.0.1"
   :serial t
-  :depends-on (#:uiop #:clack #:alexandria
+  :depends-on (#:uiop #:clack #:str
 	       #:cl-markup #:with-user-abort
 	       #:trivial-mimes)
   :components ((:file "package")
