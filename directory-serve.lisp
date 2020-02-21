@@ -4,6 +4,12 @@
 (declaim (inline remove-cwd clean-path))
 
 (defun generate-page (path)
+  "generates a page for PATH
+
+if PATH is a directory, we list the directory
+if PATH is a file, we try and serve the file
+
+otherwise we return a 404 page"
   (let ((path (if (= (length path) 1)
 		  *cwd*
 		  (namestring (merge-pathnames (subseq path 1)
@@ -15,6 +21,7 @@
 	    (serve-error)))))
 
 (defun serve-directory (path)
+  "generates a list of directories and files from PATH"
   (let ((directories (mapcar #'namestring (subdirectories path)))
 	(files (mapcar #'namestring (directory-files path))))
     (list 200 '(:content-type "text/html")
@@ -30,13 +37,18 @@
 							      (:br)))))))))))
 
 (defun remove-cwd (path)
-  (replace-all *cwd* "" (namestring path)))
+  "removes cwd from PATH"
+  (clean-path *cwd* path))
   
 (defun clean-path (dir path)
+  "removes DIR from PATH"
   (replace-all dir "" path))
 
-
 (defun serve-file (file)
+  "serves up a file
+
+if FILE is text we return the full file as text
+if FILE is not text we try and just serve up a list of bytes"
   (let ((mime (mimes:mime file))
 	(response nil))
     (setf response
@@ -49,6 +61,7 @@
     (list 200 (list :content-type mime) (list response))))
 
 (defun serve-error ()
+  "serves a 404 page"
   (list 404 '(:content-type "text/html")
 	(list (markup (:h1 "404 - Not Found")))))
 
