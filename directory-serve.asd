@@ -12,6 +12,6 @@
   :components ((:file "package")
                (:file "directory-serve"))
   :build-operation "build-op"
-  :build-pathname #-Win32 "directory-serve"
-                  #+Win32 "directory-serve.exe"
+  :build-pathname #-Win32 "bin/directory-serve"
+                  #+Win32 "bin/directory-serve.exe"
   :entry-point "directory-serve::main")
