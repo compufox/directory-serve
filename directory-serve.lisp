@@ -67,3 +67,25 @@
       (user-abort ())
       (error (e)
 	(format t "error: ~a~%" e)))))
+
+(defun stop ()
+  "stop serving directories"
+  (when *handler*
+    (clack:stop *handler*)
+    (setf *handler* nil)))
+
+(defun serve (&optional (dir (getcwd)))
+  "serve a directory
+
+if DIR is provided, start with that directory as the root
+if DIR is not provided, defaults to current directory"
+
+  ;; should offer a way to restart
+  (when *handler*
+    (error "already serving a directory"))
+
+  ;;
+  (if (directory-exists-p dir)
+      (setf *cwd* (concat (namestring dir) "/")
+	    *handler* (clackup *app*))
+      (error "directory does not exist")))

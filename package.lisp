@@ -18,8 +18,8 @@
   (:import-from :cl-markup
 		:raw
 		:markup)
-  (:import-from :alexandria
-		:lastcar))
+  (:export :serve
+	   :stop))
 (in-package :directory-serve)
 
 (defvar *cwd* (namestring (getcwd)))
