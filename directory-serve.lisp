@@ -26,7 +26,14 @@ otherwise we return a 404 page"
 	(files (mapcar #'namestring (directory-files path))))
     (list 200 '(:content-type "text/html")
 	  (list (markup
+		 (:head
+		   (:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8")
+		   (:title (remove-cwd path)))
 		 (:div :style "padding-left: 25%; padding-right: 25%"
+		   (raw (unless (string= path *cwd*)
+			  (markup (:a :href ".." (concat (string #\LEFTWARDS_ARROW_WITH_TIP_UPWARDS)
+							 " PARENT"))
+				  (:br))))
 		   (raw (apply #'concat (loop for dir in directories
 					      collect (markup (:a :href (clean-path path dir)
 								  (clean-path path dir))

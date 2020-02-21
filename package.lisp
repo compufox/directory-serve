@@ -26,4 +26,4 @@
 (defvar *handler* nil)
 (defparameter *app*
   (lambda (env)
-    (generate-page (getf env :request-uri))))
+    (generate-page (getf env :path-info))))
